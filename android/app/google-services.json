@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "169637009323",
+    "project_id": "green-spy",
+    "storage_bucket": "green-spy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:169637009323:android:7931b15322d882c66e24ee",
+        "android_client_info": {
+          "package_name": "com.example.green_spy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCV5OEnxUEcj91hF3znlP3Vd9OT7xhKNBk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
