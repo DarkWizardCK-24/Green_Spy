@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:green_spy/constants/app_colors.dart';
 
+// ========== COMPLETE EXPENSE_WIDGETS.DART FILE WITH FIX ==========
+
 class BalanceCard extends StatelessWidget {
   final double balance;
   final String currency;
@@ -95,14 +97,18 @@ class BalanceCard extends StatelessWidget {
                       size: 18,
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      '${percentageChange > 0 ? '+' : ''}$percentageChange% from last month',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: percentageChange >= 0
-                            ? AppColors.primaryGreen
-                            : AppColors.errorRed,
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        '${percentageChange > 0 ? '+' : ''}$percentageChange% from last month',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: percentageChange >= 0
+                              ? AppColors.primaryGreen
+                              : AppColors.errorRed,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -202,6 +208,8 @@ class StatCard extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -209,6 +217,7 @@ class StatCard extends StatelessWidget {
   }
 }
 
+// ========== FIXED TRANSACTION ITEM ==========
 class TransactionItem extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -233,6 +242,9 @@ class TransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Dismissible(
       key: ValueKey(title + date),
       direction: DismissDirection.endToStart,
@@ -245,12 +257,55 @@ class TransactionItem extends StatelessWidget {
         ),
         child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),
       ),
+      confirmDismiss: (direction) async {
+        return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: AppColors.cardBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                'Delete Transaction',
+                style: GoogleFonts.inter(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Text(
+                'Are you sure you want to delete "$title"?',
+                style: GoogleFonts.inter(color: AppColors.textSecondary),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.inter(color: AppColors.textMuted),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(
+                    'Delete',
+                    style: GoogleFonts.inter(
+                      color: AppColors.errorRed,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ) ?? false;
+      },
       onDismissed: (_) => onDelete?.call(),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(16),
@@ -261,38 +316,66 @@ class TransactionItem extends StatelessWidget {
           ),
           child: Row(
             children: [
+              // Icon Container
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(isSmallScreen ? 10.0 : 12.0),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 24),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: isSmallScreen ? 20 : 24,
+                ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: isSmallScreen ? 10 : 12),
+              
+              // Content Section - Flexible to prevent overflow
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Title with ellipsis
                     Text(
                       title,
                       style: GoogleFonts.inter(
-                        fontSize: 16,
+                        fontSize: isSmallScreen ? 14 : 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Row(
+                    
+                    // Date and Category with Wrap to prevent overflow
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
+                        // Date
                         Text(
                           date,
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: isSmallScreen ? 11 : 12,
                             color: AppColors.textMuted,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        
+                        // Dot separator
+                        Container(
+                          width: 3,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: AppColors.textMuted,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        
+                        // Category Badge
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -305,7 +388,7 @@ class TransactionItem extends StatelessWidget {
                           child: Text(
                             category,
                             style: GoogleFonts.inter(
-                              fontSize: 10,
+                              fontSize: isSmallScreen ? 9 : 10,
                               color: color,
                               fontWeight: FontWeight.w600,
                             ),
@@ -316,14 +399,25 @@ class TransactionItem extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(
-                '${amount > 0 ? '+' : ''}₹${amount.abs().toStringAsFixed(2)}',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: amount > 0
-                      ? AppColors.primaryGreen
-                      : AppColors.errorRed,
+              SizedBox(width: isSmallScreen ? 8 : 12),
+              
+              // Amount - Constrained width to prevent overflow
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: isSmallScreen ? 80 : 100,
+                ),
+                child: Text(
+                  '${amount > 0 ? '+' : ''}₹${_formatAmount(amount.abs())}',
+                  style: GoogleFonts.inter(
+                    fontSize: isSmallScreen ? 14 : 16,
+                    fontWeight: FontWeight.bold,
+                    color: amount > 0
+                        ? AppColors.primaryGreen
+                        : AppColors.errorRed,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
                 ),
               ),
             ],
@@ -331,6 +425,16 @@ class TransactionItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatAmount(double amount) {
+    if (amount >= 100000) {
+      return '${(amount / 100000).toStringAsFixed(1)}L';
+    } else if (amount >= 1000) {
+      return '${(amount / 1000).toStringAsFixed(1)}K';
+    } else {
+      return amount.toStringAsFixed(2);
+    }
   }
 }
 
@@ -436,12 +540,16 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+        Flexible(
+          child: Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         if (actionText != null)
@@ -457,6 +565,80 @@ class SectionHeader extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+// ========== BONUS: Period Selector Widget ==========
+class PeriodSelector extends StatelessWidget {
+  final String selectedPeriod;
+  final Function(String) onPeriodChanged;
+
+  const PeriodSelector({
+    super.key,
+    required this.selectedPeriod,
+    required this.onPeriodChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.primaryGreen.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: AppColors.primaryGreen.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              selectedPeriod,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryGreen,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.arrow_drop_down_rounded,
+              color: AppColors.primaryGreen,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+      color: AppColors.cardBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      itemBuilder: (context) => [
+        'Daily',
+        'Weekly',
+        'Monthly',
+        'Yearly',
+      ].map((period) {
+        return PopupMenuItem<String>(
+          value: period,
+          child: Text(
+            period,
+            style: GoogleFonts.inter(
+              color: selectedPeriod == period
+                  ? AppColors.primaryGreen
+                  : AppColors.textPrimary,
+              fontWeight: selectedPeriod == period
+                  ? FontWeight.bold
+                  : FontWeight.normal,
+            ),
+          ),
+        );
+      }).toList(),
+      onSelected: onPeriodChanged,
     );
   }
 }
