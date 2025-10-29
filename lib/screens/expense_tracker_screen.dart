@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:green_spy/constants/app_colors.dart';
 import 'package:green_spy/models/expense_model.dart';
+import 'package:green_spy/screens/all_transactions_screen.dart';
 import 'package:green_spy/services/expense_service.dart';
-import 'package:green_spy/widgets/chart_widgets.dart';
+import 'package:green_spy/widgets/chart_widgets.dart' hide PeriodSelector;
 import 'package:green_spy/widgets/expense_dialog.dart';
 import 'package:green_spy/widgets/expense_widgets.dart';
 
@@ -163,7 +164,14 @@ class _ExpenseTrackerScreenState
           SectionHeader(
             title: 'Recent Transactions',
             actionText: 'See All',
-            onActionPressed: () {},
+            onActionPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AllTransactionsScreen(),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 15),
 
